@@ -17,6 +17,7 @@ use App\Http\Controllers\ItemController;
 
 Route::get('/', [LoginController::class,'index']);
 Route::post('/login-submit', [LoginController::class,'login_submit']);
+Route::get('/logout', [LoginController::class, 'logout'])->name('login');
 
 Route::group(['middleware'=>['sessionAuth']], function(){
     

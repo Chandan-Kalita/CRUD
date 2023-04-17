@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 
-class ItemController extends Controller
+class ItemControllerAPI extends Controller
 {
     //
     function insert(Request $r){
@@ -27,27 +27,11 @@ class ItemController extends Controller
             $ext = $r->file('item_image')->getClientOriginalExtension();
             $r->file('item_image')->storeAs('public/images/item-image/'.$item_id.'.'.$ext);
             
-            session()->flash('msg','
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-            Item Inserted Successfully
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            ');
-            return redirect('/add-new');
+            return response()->json(['success'=>'Inserted']);
         }else{
             $errors = $validator->errors()->all();
-            $msg = '<ul>';
-            foreach($errors as $error){
-                $msg .= "<li>$error</li>";
-            }
-            $msg .= '</ul>';
-            session()->flash('msg','
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            '.$msg.'
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            ');
-            return redirect('/add-new');
+            return response()->json(['error'=>$errors]);
+
 
         }
     }
@@ -72,32 +56,15 @@ class ItemController extends Controller
                 $ext = $r->file('item_image')->getClientOriginalExtension();
                 $r->file('item_image')->storeAs('public/images/item-image/'.$item_id.'.'.$ext);
             }
+            return response()->json(['success'=>'Inserted']);
             
-            session()->flash('msg','
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-            Item Updated Successfully
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            ');
-            return redirect('/dashboard');
         }else{
             $errors = $validator->errors()->all();
-            $msg = '<ul>';
-            foreach($errors as $error){
-                $msg .= "<li>$error</li>";
-            }
-            $msg .= '</ul>';
-            session()->flash('msg','
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            '.$msg.'
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            ');
-            return redirect('/edit?id='.$item_id);
-            
+            return response()->json(['error'=>$errors]);
+                       
         }
     }
-    function index(Request $r){
+    function list(Request $r){
         $items = DB::table('item_master')->get();
         foreach($items as $item){
             $images_in_dir = glob('storage/images/item-image/'.$item->item_id.'.{*}', GLOB_BRACE);
@@ -106,17 +73,10 @@ class ItemController extends Controller
                 $item->img_path = asset($images_in_dir[0]);
             }
         }
-        return view('dashboard')->with('items',$items);
+        return response()->json(['msg'=>'Item List','data'=>$items]);
     }
     function delete(Request $r){
         DB::table('item_master')->where('item_id',$r->get('id'))->delete();
-        return redirect('/dashboard');
-    }
-    function edit(Request $r){
-        $item = DB::table('item_master')->where('item_id',$r->get('id'))->first();
-        if(!$item){
-            return redirect('/dashboard');
-        }
-        return view('edit')->with('item',$item);
+        return response()->json(['success'=>'Deleted']);
     }
 }
