@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\DB;
 
 class ItemControllerAPI extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
     //
     function insert(Request $r){
         $validator = Validator::make($r->all(), [
