@@ -69,6 +69,10 @@ class ItemController extends Controller
             ]);
             
             if($r->file('item_image')){
+                $old_pics = glob('storage/images/item-image/'.$item_id.'.{*}', GLOB_BRACE);
+                foreach($old_pics as $old_pic){
+                    unlink($old_pic);
+                }
                 $ext = $r->file('item_image')->getClientOriginalExtension();
                 $r->file('item_image')->storeAs('public/images/item-image/'.$item_id.'.'.$ext);
             }
